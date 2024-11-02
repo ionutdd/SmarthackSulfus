@@ -24,11 +24,15 @@ public class ApiClient {
         System.out.println("POST_PLAY: " + POST_PLAY);
         System.out.println("POST_END: " + POST_END);
 
+        System.out.println("Starting session...");
+
         sessionId = startSession();
         System.out.println("Session started: " + sessionId);
 
         // Play in a loop for 42 times
         for (int i = 0; i < 1; i++) {
+
+            System.out.println("Playing session for day " + i);
             playSession(i, sessionId);
         }
 
@@ -57,7 +61,6 @@ public class ApiClient {
         // Send the POST request
         String response = sendPostRequest(POST_PLAY, jsonInputString, sessionId); // Pass sessionId as a parameter
         System.out.println("Response from play call for day " + day + ": " + response);
-        
     }
 
     private static void endSession() throws Exception {
