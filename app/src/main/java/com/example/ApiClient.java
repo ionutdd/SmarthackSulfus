@@ -8,7 +8,11 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import com.example.DataTypes.*;
 
 import com.example.ParseInput.Connections;
 import com.example.ParseInput.Customers;
@@ -45,6 +49,11 @@ public class ApiClient {
         List<Customers> customersList = parser.parseCSVCustomers(filePathCustomers);
         List<Demands> demandsList = parser.parseCSVDemands(filePathDemands);
         List<Tanks> tanksList = parser.parseCSVTanks(filePathTanks);
+
+        Graph graph = createGraph(connectionsList, refineriesList, customersList, tanksList);
+        
+        System.out.println("Graph created:");
+        graph.displayGraph();
 
         System.err.println("API_KEY: " + API_KEY);
         System.out.println("POST_START: " + POST_START);
@@ -83,7 +92,7 @@ public class ApiClient {
         
         // Create your JSON payload for the play call
         String jsonInputString;
-        if (day == 0){
+        if (day == 0) {
             jsonInputString = "{"
                     + "\"day\":" + day + ","
                     + "\"movements\":["
@@ -164,4 +173,40 @@ public class ApiClient {
         JsonObject jsonObject = JsonParser.parseString(response).getAsJsonObject();
         return jsonObject.get("session_id").getAsString(); // Adjust according to the actual response structure
     }
+
+    private static Graph createGraph(List<Connections> connectionsList, List<Refineries> refineriesList, 
+                         List<Customers> customersList, List<Tanks> tanksList) {
+        Graph graph = new Graph();
+        
+        // Add nodes (refineries, customers, tanks)
+        Map<Object, Node> nodeMap = new HashMap<>(); // To keep track of nodes by their data
+        for (Refineries refinery : refineriesList) {
+            Node node = new Node(refinery.id, "refinery");
+            graph.addNode(node);
+            nodeMap.put(refinery.id, node); // Assuming getId() gives the unique identifier
+        }
+        for (Customers customer : customersList) {
+            Node node = new Node(customer.id, "customer");
+            graph.addNode(node);
+            nodeMap.put(customer.id, node);
+        }
+        for (Tanks tank : tanksList) {
+            Node node = new Node(tank.id, "tank");
+            graph.addNode(node);
+            nodeMap.put(tank.id, node);
+        }
+
+        // Add directed edges based on connections
+        for (Connections connection : connectionsList) {
+            Node sourceNode = nodeMap.get(connection.fromId); 
+            Node destinationNode = nodeMap.get(connection.toId); 
+            
+            if (sourceNode != null && destinationNode != null) {
+                graph.addEdge(sourceNode, destinationNode);
+            }
+    }
+
+    return graph;
+}
+
 }
