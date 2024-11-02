@@ -12,15 +12,20 @@ import java.net.URL;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+import io.github.cdimascio.dotenv.Dotenv;
+
+
 public class ApiClient {
-    
-    private static final String API_KEY = "7bcd6334-bc2e-4cbf-b9d4-61cb9e868869"; // replace with your API key
-    private static final String POST_START = "http://localhost:8080/api/v1/session/start";
-    private static final String POST_PLAY = "http://localhost:8080/api/v1/play/round";
-    private static final String POST_END = "http://localhost:8080/api/v1/session/end";
+    private static final Dotenv dotenv = Dotenv.load();
+
+    private static final String API_KEY = dotenv.get("API_KEY");
+    private static final String POST_START = dotenv.get("POST_START");
+    private static final String POST_PLAY = dotenv.get("POST_PLAY");
+    private static final String POST_END = dotenv.get("POST_END");
     private static String sessionId;
 
     public static void main(String[] args) throws Exception {
+        System.out.println("Starting API client...");
         // Start the session
 
         System.err.println("API_KEY: " + API_KEY);
@@ -37,7 +42,35 @@ public class ApiClient {
         for (int i = 0; i < 42; i++) {
 
             System.out.println("Playing session for day " + i);
-            playSession(i, sessionId);
+
+            String jsonInputString = "";
+
+            if (i == 0) {
+                jsonInputString = "{"
+                        + "\"day\":" + i + ","
+                        + "\"movements\":["
+                        + "{"
+                        + "\"connectionId\":\"3fa85f64-5717-4562-b3fc-2c963f66afa6\"," // replace with actual connectionId as needed
+                        + "\"amount\":0" // modify this amount as necessary
+                        + "}"
+                        + "]"
+                        + "}";
+            }
+            else {
+                // jsonInputString = outputJson();
+                jsonInputString = "{"
+                        + "\"day\":" + i + ","
+                        + "\"movements\":["
+                        + "{"
+                        + "\"connectionId\":\"3fa85f64-5717-4562-b3fc-2c963f66afa6\"," // replace with actual connectionId as needed
+                        + "\"amount\":0" // modify this amount as necessary
+                        + "}"
+                        + "]"
+                        + "}";
+            }
+
+            String response = playSession(i, sessionId, jsonInputString);
+            
         }
 
         // End the session
@@ -50,45 +83,16 @@ public class ApiClient {
         return response.trim();
     }
 
-    private static void playSession(int day, String sessionId) throws Exception {
-        // Create the directory if it doesn't exist
-        String folderPath = "app/responses";
-        File folder = new File(folderPath);
-        if (!folder.exists()) {
-            folder.mkdir();
-        }
-        
+
+    private static String playSession(int day, String sessionId, String jsonInputString) throws Exception {
         // Create your JSON payload for the play call
-        String jsonInputString = "{"
-                + "\"day\":" + day + ","
-                + "\"movements\":["
-                + "{"
-                + "\"connectionId\":\"3fa85f64-5717-4562-b3fc-2c963f66afa6\","
-                + "\"amount\":0"
-                + "}"
-                + "]"
-                + "}";
-        
+    
         // Send the POST request
         String response = sendPostRequest(POST_PLAY, jsonInputString, sessionId); // Pass sessionId as a parameter
         System.out.println("Response from play call for day " + day + ": " + response);
-        
-        // Save the response to a JSON file in the folder
-        saveResponseToFile(day, response, folderPath);
+        return response;
     }
     
-    private static void saveResponseToFile(int day, String response, String folderPath) {
-        try {
-            String filePath = folderPath + "/response_day_" + day + ".json";
-            FileWriter fileWriter = new FileWriter(filePath);
-            fileWriter.write(response);
-            fileWriter.close();
-            System.out.println("Response saved to file: " + filePath);
-        } catch (IOException e) {
-            System.out.println("An error occurred while saving the response to a file.");
-            e.printStackTrace();
-        }
-    }
 
     private static void endSession() throws Exception {
         String response = sendPostRequest(POST_END, null, null);
