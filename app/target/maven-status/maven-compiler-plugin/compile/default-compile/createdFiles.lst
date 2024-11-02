@@ -1,0 +1,7 @@
+com\example\CSVParser.class
+com\example\ApiClient.class
+com\example\ParseInput\Customers.class
+com\example\ParseInput\Connections.class
+com\example\ParseInput\Demands.class
+com\example\ParseInput\Refineries.class
+com\example\ParseInput\Tanks.class
