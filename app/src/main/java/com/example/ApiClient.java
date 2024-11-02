@@ -8,15 +8,19 @@ import java.net.URL;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import io.github.cdimascio.dotenv.Dotenv;
+
 public class ApiClient {
-    
-    private static final String API_KEY = "7bcd6334-bc2e-4cbf-b9d4-61cb9e868869"; // replace with your API key
-    private static final String POST_START = "http://localhost:8080/api/v1/session/start";
-    private static final String POST_PLAY = "http://localhost:8080/api/v1/play/round";
-    private static final String POST_END = "http://localhost:8080/api/v1/session/end";
+    private static final Dotenv dotenv = Dotenv.load();
+
+    private static final String API_KEY = dotenv.get("API_KEY");
+    private static final String POST_START = dotenv.get("POST_START");
+    private static final String POST_PLAY = dotenv.get("POST_PLAY");
+    private static final String POST_END = dotenv.get("POST_END");
     private static String sessionId;
 
     public static void main(String[] args) throws Exception {
+        System.out.println("Starting API client...");
         // Start the session
 
         System.err.println("API_KEY: " + API_KEY);
@@ -30,10 +34,38 @@ public class ApiClient {
         System.out.println("Session started: " + sessionId);
 
         // Play in a loop for 42 times
-        for (int i = 0; i < 1; i++) {
+        for (int i = 0; i < 42; i++) {
 
             System.out.println("Playing session for day " + i);
-            playSession(i, sessionId);
+
+            String jsonInputString = "";
+
+            if (i == 0) {
+                jsonInputString = "{"
+                        + "\"day\":" + i + ","
+                        + "\"movements\":["
+                        + "{"
+                        + "\"connectionId\":\"3fa85f64-5717-4562-b3fc-2c963f66afa6\"," // replace with actual connectionId as needed
+                        + "\"amount\":0" // modify this amount as necessary
+                        + "}"
+                        + "]"
+                        + "}";
+            }
+            else {
+                // jsonInputString = outputJson();
+                jsonInputString = "{"
+                        + "\"day\":" + i + ","
+                        + "\"movements\":["
+                        + "{"
+                        + "\"connectionId\":\"3fa85f64-5717-4562-b3fc-2c963f66afa6\"," // replace with actual connectionId as needed
+                        + "\"amount\":0" // modify this amount as necessary
+                        + "}"
+                        + "]"
+                        + "}";
+            }
+
+            String response = playSession(i, sessionId, jsonInputString);
+            
         }
 
         // End the session
@@ -46,21 +78,13 @@ public class ApiClient {
         return response.trim();
     }
 
-    private static void playSession(int day, String sessionId) throws Exception {
+    private static String playSession(int day, String sessionId, String jsonInputString) throws Exception {
         // Create your JSON payload for the play call
-        String jsonInputString = "{"
-                + "\"day\":" + day + ","
-                + "\"movements\":["
-                + "{"
-                + "\"connectionId\":\"3fa85f64-5717-4562-b3fc-2c963f66afa6\"," // replace with actual connectionId as needed
-                + "\"amount\":0" // modify this amount as necessary
-                + "}"
-                + "]"
-                + "}";
     
         // Send the POST request
         String response = sendPostRequest(POST_PLAY, jsonInputString, sessionId); // Pass sessionId as a parameter
         System.out.println("Response from play call for day " + day + ": " + response);
+        return response;
     }
 
     private static void endSession() throws Exception {
