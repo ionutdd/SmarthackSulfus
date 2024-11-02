@@ -1,6 +1,9 @@
 package com.example;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
@@ -8,7 +11,9 @@ import java.net.URL;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+
 import io.github.cdimascio.dotenv.Dotenv;
+
 
 public class ApiClient {
     private static final Dotenv dotenv = Dotenv.load();
@@ -78,6 +83,7 @@ public class ApiClient {
         return response.trim();
     }
 
+
     private static String playSession(int day, String sessionId, String jsonInputString) throws Exception {
         // Create your JSON payload for the play call
     
@@ -86,6 +92,7 @@ public class ApiClient {
         System.out.println("Response from play call for day " + day + ": " + response);
         return response;
     }
+    
 
     private static void endSession() throws Exception {
         String response = sendPostRequest(POST_END, null, null);
