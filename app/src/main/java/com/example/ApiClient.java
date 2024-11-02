@@ -1,6 +1,9 @@
 package com.example;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
@@ -8,6 +11,7 @@ import java.net.URL;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+
 public class ApiClient {
     
     private static final String API_KEY = "7bcd6334-bc2e-4cbf-b9d4-61cb9e868869"; // replace with your API key
@@ -30,7 +34,7 @@ public class ApiClient {
         System.out.println("Session started: " + sessionId);
 
         // Play in a loop for 42 times
-        for (int i = 0; i < 1; i++) {
+        for (int i = 0; i < 42; i++) {
 
             System.out.println("Playing session for day " + i);
             playSession(i, sessionId);
@@ -47,20 +51,43 @@ public class ApiClient {
     }
 
     private static void playSession(int day, String sessionId) throws Exception {
+        // Create the directory if it doesn't exist
+        String folderPath = "app/responses";
+        File folder = new File(folderPath);
+        if (!folder.exists()) {
+            folder.mkdir();
+        }
+        
         // Create your JSON payload for the play call
         String jsonInputString = "{"
                 + "\"day\":" + day + ","
                 + "\"movements\":["
                 + "{"
-                + "\"connectionId\":\"3fa85f64-5717-4562-b3fc-2c963f66afa6\"," // replace with actual connectionId as needed
-                + "\"amount\":0" // modify this amount as necessary
+                + "\"connectionId\":\"3fa85f64-5717-4562-b3fc-2c963f66afa6\","
+                + "\"amount\":0"
                 + "}"
                 + "]"
                 + "}";
-    
+        
         // Send the POST request
         String response = sendPostRequest(POST_PLAY, jsonInputString, sessionId); // Pass sessionId as a parameter
         System.out.println("Response from play call for day " + day + ": " + response);
+        
+        // Save the response to a JSON file in the folder
+        saveResponseToFile(day, response, folderPath);
+    }
+    
+    private static void saveResponseToFile(int day, String response, String folderPath) {
+        try {
+            String filePath = folderPath + "/response_day_" + day + ".json";
+            FileWriter fileWriter = new FileWriter(filePath);
+            fileWriter.write(response);
+            fileWriter.close();
+            System.out.println("Response saved to file: " + filePath);
+        } catch (IOException e) {
+            System.out.println("An error occurred while saving the response to a file.");
+            e.printStackTrace();
+        }
     }
 
     private static void endSession() throws Exception {
