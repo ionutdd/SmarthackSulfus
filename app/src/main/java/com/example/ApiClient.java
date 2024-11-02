@@ -8,7 +8,9 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.List;
 
+import com.example.ParseInput.Refineries;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
@@ -26,7 +28,15 @@ public class ApiClient {
 
     public static void main(String[] args) throws Exception {
         System.out.println("Starting API client...");
-        // Start the session
+        
+        CSVParser parser = new CSVParser();
+        String filePath = "app/src/main/java/com/example/CSV/refineries.csv"; // Adjust the path as necessary
+        List<Refineries> refineriesList = parser.parseCSVRefineries(filePath);
+
+        // Print the results to verify
+        for (Refineries refinery : refineriesList) {
+            System.out.println("ID: " + refinery.id + ", Name: " + refinery.name);
+        }
 
         System.err.println("API_KEY: " + API_KEY);
         System.out.println("POST_START: " + POST_START);
@@ -89,7 +99,7 @@ public class ApiClient {
     
         // Send the POST request
         String response = sendPostRequest(POST_PLAY, jsonInputString, sessionId); // Pass sessionId as a parameter
-        System.out.println("Response from play call for day " + day + ": " + response);
+        // System.out.println("Response from play call for day " + day + ": " + response);
         return response;
     }
     

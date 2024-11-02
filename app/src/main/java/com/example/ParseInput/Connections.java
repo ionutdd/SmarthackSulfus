@@ -4,8 +4,8 @@ public class Connections {
     String id;
     String fromId;
     String toId;
-    int distance;
-    int leadTime;
+    double distance;
+    double leadTime;
     String connectionType;
-    int maxCapacity;
+    double maxCapacity;
 }
