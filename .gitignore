@@ -1,5 +1,4 @@
 .env
 .challenge
-
 db.mv.db
 db.trace.db
