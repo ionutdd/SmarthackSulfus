@@ -25,7 +25,7 @@ public class ApiClient {
 
         System.err.println("API_KEY: " + API_KEY);
         System.out.println("POST_START: " + POST_START);
-        System.out.println("POST_PLAY: " + POST_PLAY);
+        System.out.println("POST_PLAY: " + POST_PLAY); 
         System.out.println("POST_END: " + POST_END);
 
         System.out.println("Starting session...");
