@@ -16,8 +16,8 @@ import com.google.gson.JsonParser;
 
 import io.github.cdimascio.dotenv.Dotenv;
 
-
 public class ApiClient {
+    
     private static final Dotenv dotenv = Dotenv.load();
 
     private static final String API_KEY = dotenv.get("API_KEY");
@@ -52,35 +52,7 @@ public class ApiClient {
         for (int i = 0; i < 42; i++) {
 
             System.out.println("Playing session for day " + i);
-
-            String jsonInputString = "";
-
-            if (i == 0) {
-                jsonInputString = "{"
-                        + "\"day\":" + i + ","
-                        + "\"movements\":["
-                        + "{"
-                        + "\"connectionId\":\"3fa85f64-5717-4562-b3fc-2c963f66afa6\"," // replace with actual connectionId as needed
-                        + "\"amount\":0" // modify this amount as necessary
-                        + "}"
-                        + "]"
-                        + "}";
-            }
-            else {
-                // jsonInputString = outputJson();
-                jsonInputString = "{"
-                        + "\"day\":" + i + ","
-                        + "\"movements\":["
-                        + "{"
-                        + "\"connectionId\":\"3fa85f64-5717-4562-b3fc-2c963f66afa6\"," // replace with actual connectionId as needed
-                        + "\"amount\":0" // modify this amount as necessary
-                        + "}"
-                        + "]"
-                        + "}";
-            }
-
-            String response = playSession(i, sessionId, jsonInputString);
-            
+            playSession(i, sessionId);
         }
 
         // End the session
@@ -93,16 +65,52 @@ public class ApiClient {
         return response.trim();
     }
 
-
-    private static String playSession(int day, String sessionId, String jsonInputString) throws Exception {
+    private static void playSession(int day, String sessionId) throws Exception {
+        // Create the directory if it doesn't exist
+        String folderPath = "app/responses";
+        File folder = new File(folderPath);
+        if (!folder.exists()) {
+            folder.mkdir();
+        }
+        
         // Create your JSON payload for the play call
-    
+        String jsonInputString;
+        if (day == 0){
+            jsonInputString = "{"
+                    + "\"day\":" + day + ","
+                    + "\"movements\":["
+                    + "{"
+                    + "\"connectionId\":\"3fa85f64-5717-4562-b3fc-2c963f66afa6\","
+                    + "\"amount\":0"
+                    + "}"
+                    + "]"
+                    + "}";
+        }
+        else{
+            jsonInputString = null;
+            //TODO - Implement the logic to create the JSON payload for subsequent days
+        }
+        
         // Send the POST request
         String response = sendPostRequest(POST_PLAY, jsonInputString, sessionId); // Pass sessionId as a parameter
         // System.out.println("Response from play call for day " + day + ": " + response);
-        return response;
+        
+        // Save the response to a JSON file in the folder
+        saveResponseToFile(day, response, folderPath);
     }
     
+    private static void saveResponseToFile(int day, String response, String folderPath) {
+        try {
+            String filePath = folderPath + "/response_day_" + day + ".json";
+            FileWriter fileWriter = new FileWriter(filePath);
+            fileWriter.write(response);
+            fileWriter.close();
+            System.out.println("Response saved to file: " + filePath);
+        } catch (IOException e) {
+            System.out.println("An error occurred while saving the response to a file.");
+            e.printStackTrace();
+        }
+    }
 
     private static void endSession() throws Exception {
         String response = sendPostRequest(POST_END, null, null);
