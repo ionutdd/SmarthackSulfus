@@ -10,7 +10,11 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.List;
 
+import com.example.ParseInput.Connections;
+import com.example.ParseInput.Customers;
+import com.example.ParseInput.Demands;
 import com.example.ParseInput.Refineries;
+import com.example.ParseInput.Tanks;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
@@ -30,13 +34,17 @@ public class ApiClient {
         System.out.println("Starting API client...");
         
         CSVParser parser = new CSVParser();
-        String filePath = "app/src/main/java/com/example/CSV/refineries.csv"; // Adjust the path as necessary
-        List<Refineries> refineriesList = parser.parseCSVRefineries(filePath);
-
-        // Print the results to verify
-        for (Refineries refinery : refineriesList) {
-            System.out.println("ID: " + refinery.id + ", Name: " + refinery.name);
-        }
+        String filePathRefineries = "app/src/main/java/com/example/CSV/refineries.csv"; 
+        String filePathConnections = "app/src/main/java/com/example/CSV/connections.csv";
+        String filePathCustomers = "app/src/main/java/com/example/CSV/customers.csv";
+        String filePathDemands = "app/src/main/java/com/example/CSV/demands.csv";
+        String filePathTanks = "app/src/main/java/com/example/CSV/tanks.csv";
+        
+        List<Refineries> refineriesList = parser.parseCSVRefineries(filePathRefineries);
+        List<Connections> connectionsList = parser.parseCSVConnections(filePathConnections);
+        List<Customers> customersList = parser.parseCSVCustomers(filePathCustomers);
+        List<Demands> demandsList = parser.parseCSVDemands(filePathDemands);
+        List<Tanks> tanksList = parser.parseCSVTanks(filePathTanks);
 
         System.err.println("API_KEY: " + API_KEY);
         System.out.println("POST_START: " + POST_START);
@@ -87,7 +95,11 @@ public class ApiClient {
                     + "}";
         }
         else{
-            jsonInputString = null;
+            jsonInputString = "{"
+                    + "\"day\":" + day + ","
+                    + "\"movements\":["
+                    + "]"
+                    + "}";
             //TODO - Implement the logic to create the JSON payload for subsequent days
         }
         
